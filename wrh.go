@@ -15,9 +15,9 @@ import (
 	"github.com/nogoegst/rand"
 )
 
-// HashFloat64 calculates hash of key||seed and converts
+// hashFloat64 calculates hash of key||seed and converts
 // result into float64 number in [0:1).
-func HashFloat64(key string, seed string) float64 {
+func hashFloat64(key string, seed string) float64 {
 	cfg := blake2xb.NewXConfig(0)
 	h, err := blake2xb.NewX(cfg)
 	if err != nil {
@@ -38,7 +38,7 @@ type Bucket struct {
 // WeightScore calculated weighted score of bucket b for
 // given key.
 func (b *Bucket) WeightedScore(key string) float64 {
-	return -b.Weight / math.Log(HashFloat64(key, b.Name))
+	return -b.Weight / math.Log(hashFloat64(key, b.Name))
 }
 
 // Sort sorts buckets by weighted score for given key in descending order.
