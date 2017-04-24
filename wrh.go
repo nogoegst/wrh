@@ -30,24 +30,27 @@ func hashFloat64(key string, seed string) float64 {
 }
 
 // WRH bucket
-type Bucket struct {
-	Name   string
-	Weight float64
+type Bucket interface {
+	Name() string
+	Weight() float64
 }
 
 // WeightScore calculated weighted score of bucket b for
 // given key.
-func (b *Bucket) WeightedScore(key string) float64 {
-	return -b.Weight / math.Log(hashFloat64(key, b.Name))
+func WeightedScore(b Bucket, key string) float64 {
+	return -b.Weight() / math.Log(hashFloat64(key, b.Name()))
 }
 
 // Sort sorts buckets by weighted score for given key in descending order.
 // It returns resulting slice and does not modify buckets.
-func Sort(buckets []*Bucket, key string) []*Bucket {
-	bs := make([]*Bucket, len(buckets))
-	copy(bs, buckets)
+func Sort(buckets interface{}, key string) []Bucket {
+	bckts := buckets.(map[string]Bucket)
+	bs := make([]Bucket, 0, len(bckts))
+	for _, b := range bckts {
+		bs = append(bs, b.(Bucket))
+	}
 	sort.Slice(bs, func(i, j int) bool {
-		return bs[i].WeightedScore(key) >= bs[j].WeightedScore(key)
+		return WeightedScore(bs[i], key) >= WeightedScore(bs[j], key)
 	})
 	return bs
 }
