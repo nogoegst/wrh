@@ -29,25 +29,43 @@ func hashFloat64(key string, seed string) float64 {
 	return rnd.Float64()
 }
 
-// WRH bucket
-type Bucket struct {
-	Name   string
-	Weight float64
+// Table represents WRH hash table
+type Table map[string]float64
+
+// WeightScore calculated weighted score of bucket named name with
+// weight for given key.
+func WeightedScore(key, name string, weight float64) float64 {
+	return -weight / math.Log(hashFloat64(key, name))
 }
 
-// WeightScore calculated weighted score of bucket b for
+// Calc calculates new table containing all the scores for the
 // given key.
-func (b *Bucket) WeightedScore(key string) float64 {
-	return -b.Weight / math.Log(hashFloat64(key, b.Name))
+func (t Table) Calc(key string) Table {
+	wt := make(Table)
+	for name, weight := range t {
+		wt[name] = WeightedScore(key, name, weight)
+	}
+	return wt
 }
 
-// Sort sorts buckets by weighted score for given key in descending order.
-// It returns resulting slice and does not modify buckets.
-func Sort(buckets []*Bucket, key string) []*Bucket {
-	bs := make([]*Bucket, len(buckets))
-	copy(bs, buckets)
+type scoredValue struct {
+	Name  string
+	Score float64
+}
+
+// Sort sorts score table by score for given key in descending order.
+// It returns slice of sorted keys.
+func (t Table) Sort() []string {
+	bs := make([]scoredValue, 0, len(t))
+	for k, v := range t {
+		bs = append(bs, scoredValue{Name: k, Score: v})
+	}
 	sort.Slice(bs, func(i, j int) bool {
-		return bs[i].WeightedScore(key) >= bs[j].WeightedScore(key)
+		return bs[i].Score >= bs[j].Score
 	})
-	return bs
+	sm := make([]string, 0)
+	for _, v := range bs {
+		sm = append(sm, v.Name)
+	}
+	return sm
 }
