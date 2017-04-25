@@ -69,3 +69,9 @@ func (t Table) Sort() []string {
 	}
 	return sm
 }
+
+// List is a convenience shourtcut function that returns list
+// of keys sorted by their score.
+func (t Table) List(key string) []string {
+	return t.Calc(key).Sort()
+}
