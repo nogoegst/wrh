@@ -18,8 +18,7 @@ import (
 // hashFloat64 calculates hash of key||seed and converts
 // result into float64 number in [0:1).
 func hashFloat64(key string, seed string) float64 {
-	cfg := blake2xb.NewXConfig(0)
-	h, err := blake2xb.NewX(cfg)
+	h, err := blake2xb.New(16) // XXX: how many calls does rand make?
 	if err != nil {
 		panic(err)
 	}
