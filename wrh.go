@@ -31,7 +31,7 @@ func hashFloat64(key string, seed string) float64 {
 // Table represents WRH hash table
 type Table map[string]float64
 
-// WeightScore calculated weighted score of bucket named name with
+// WeightScore calculates weighted score of bucket named name with
 // weight for given key.
 func WeightedScore(key, name string, weight float64) float64 {
 	return -weight / math.Log(hashFloat64(key, name))
